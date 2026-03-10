@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pop Star ID Generator</title>
+  <meta name="description" content="Generate your custom hyperpop ID card based on your favorite pop star era.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="appContainer">
+    <!-- Phase 1: Data Collection -->
+    <section id="phase1" class="phase active">
+      <div class="header">
+        <h1>POP STAR ID</h1>
+        <p class="subtitle">ENTER TO GENERATE</p>
+      </div>
+      
+      <form id="dataForm">
+        <div class="form-row">
+          <div class="form-group half">
+            <label for="firstName">FIRST NAME</label>
+            <input type="text" id="firstName" placeholder="SISTER" required>
+          </div>
+          <div class="form-group half">
+            <label for="lastName">LAST NAME</label>
+            <input type="text" id="lastName" placeholder="CITY" required>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group half">
+            <label for="gender">GENDER</label>
+            <select id="gender" required>
+              <option value="" disabled selected>SELECT</option>
+              <option value="Icon">ICON</option>
+              <option value="Legend">LEGEND</option>
+              <option value="Popstar">POPSTAR</option>
+              <option value="Star">STAR</option>
+            </select>
+          </div>
+          <div class="form-group half">
+            <label for="xHandle">X HANDLE</label>
+            <input type="text" id="xHandle" placeholder="@handle" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="file-upload-label" id="uploadLabel">
+            <span id="fileUploadText">UPLOAD GLAMOUR SHOT</span>
+            <input type="file" id="photoUpload" accept="image/*" required>
+          </label>
+        </div>
+        
+        <button type="submit" class="btn primary">CONTINUE <span class="arrow">→</span></button>
+      </form>
+    </section>
+
+    <!-- Phase 2: Era Selection -->
+    <section id="phase2" class="phase hidden">
+      <div class="header">
+        <h2>SELECT ERA</h2>
+        <p class="subtitle">CHOOSE YOUR AESTHETIC</p>
+      </div>
+
+      <div class="era-grid">
+        <!-- Era 1: SISTER -->
+        <div class="era-card" data-era="sister">
+          <div class="era-content">
+            <h3>SISTER</h3>
+            <p>Frost Children</p>
+          </div>
+        </div>
+        <!-- Era 2: Detour -->
+        <div class="era-card" data-era="detour">
+          <div class="era-content">
+            <h3>Detour</h3>
+            <p>Kim Petras</p>
+          </div>
+        </div>
+        <!-- Era 3: Wor$t Girl -->
+        <div class="era-card" data-era="worstgirl">
+          <div class="era-content">
+            <h3>Wor$t Girl in America</h3>
+            <p>Slayyyter</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Phase 3: ID Generation -->
+    <section id="phase3" class="phase hidden">
+      <div class="header">
+        <h2>YOUR ID</h2>
+        <p class="subtitle">DOWNLOAD & SHARE</p>
+      </div>
+
+      <div class="canvas-container">
+        <!-- Hidden canvas for generation -->
+        <canvas id="idCanvas" width="1012" height="638" style="display:none;"></canvas>
+        <div class="preview-wrapper">
+          <img id="idPreview" src="" alt="Generated ID Preview" />
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button id="downloadBtn" class="btn primary glow">DOWNLOAD ID</button>
+        <button id="startOverBtn" class="btn secondary">START OVER</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Marketing Footer -->
+  <footer id="marketingFooter">
+    <div class="social-links">
+      <a href="#" id="linkApple" class="social-icon" target="_blank">APPLE MUSIC</a>
+      <a href="#" id="linkSpotify" class="social-icon" target="_blank">SPOTIFY</a>
+      <a href="#" id="linkSoundcloud" class="social-icon" target="_blank">SOUNDCLOUD</a>
+      <a href="#" id="linkWebsite" class="social-icon" target="_blank">ARTIST WEBSITE</a>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
