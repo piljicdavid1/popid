@@ -2,7 +2,6 @@
 const state = {
   firstName: '',
   lastName: '',
-  gender: '',
   xHandle: '',
   photoUrl: null,
   selectedEraId: null
@@ -13,7 +12,7 @@ const ERAS = {
     label: 'SISTER',
     subtext: 'Frost Children',
     bgImage: 'assets/Frame 2.png',
-    textColor: '#A4C600',
+    textColor: '#CA486B',
     links: {
       apple: 'https://music.apple.com/us/artist/frost-children/1531233075',
       spotify: 'https://open.spotify.com/artist/6m0k0Oaw3s3p7a0xIf7w4O',
@@ -25,7 +24,7 @@ const ERAS = {
     label: 'Detour',
     subtext: 'Kim Petras',
     bgImage: 'assets/Frame 3.png',
-    textColor: '#FF4D8D',
+    textColor: '#FF5993',
     links: {
       apple: 'https://music.apple.com/us/artist/kim-petras/1269399897',
       spotify: 'https://open.spotify.com/artist/3bZEcqHQseA69uH2u08gOr',
@@ -37,7 +36,7 @@ const ERAS = {
     label: 'Wor$t Girl in America',
     subtext: 'Slayyyter',
     bgImage: 'assets/Frame 1.png',
-    textColor: '#FF0000',
+    textColor: '#E91214',
     links: {
       apple: 'https://music.apple.com/us/artist/slayyyter/1423233816',
       spotify: 'https://open.spotify.com/artist/0cwlFmXzWdoGz0s0EVlE17',
@@ -67,22 +66,18 @@ const idPreview = document.getElementById('idPreview');
 const downloadBtn = document.getElementById('downloadBtn');
 const startOverBtn = document.getElementById('startOverBtn');
 
-const footerLinks = {
-  apple: document.getElementById('linkApple'),
-  spotify: document.getElementById('linkSpotify'),
-  soundcloud: document.getElementById('linkSoundcloud'),
-  website: document.getElementById('linkWebsite')
-};
-
 // Event Listeners
 photoUpload.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (file) {
     fileUploadText.textContent = file.name;
     uploadLabel.classList.add('has-file');
-    // Create object URL
-    if (state.photoUrl) URL.revokeObjectURL(state.photoUrl);
-    state.photoUrl = URL.createObjectURL(file);
+    // Use FileReader to create a base64 Data URL, which avoids canvas origin tainting
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      state.photoUrl = event.target.result;
+    };
+    reader.readAsDataURL(file);
   } else {
     fileUploadText.textContent = 'UPLOAD GLAMOUR SHOT';
     uploadLabel.classList.remove('has-file');
@@ -95,11 +90,10 @@ form.addEventListener('submit', (e) => {
   
   state.firstName = document.getElementById('firstName').value.trim();
   state.lastName = document.getElementById('lastName').value.trim();
-  state.gender = document.getElementById('gender').value;
-  state.xHandle = document.getElementById('xHandle').value.trim();
+  state.xHandle = handleInput.value.trim();
   
   if (!state.xHandle.startsWith('@')) {
-    state.xHandle = '@' + state.xHandle;
+    state.xHandle = '@' + state.xHandle.replace('@', '');
   }
 
   showPhase(2);
@@ -108,7 +102,7 @@ form.addEventListener('submit', (e) => {
 eraCards.forEach(card => {
   card.addEventListener('click', () => {
     state.selectedEraId = card.dataset.era;
-    updateFooterLinks();
+    updateGlobalAccent();
     showPhase(3);
     // Add small delay to allow UI to transition
     setTimeout(generateID, 100);
@@ -125,10 +119,27 @@ downloadBtn.addEventListener('click', () => {
 startOverBtn.addEventListener('click', () => {
   form.reset();
   state.photoUrl = null;
-  fileUploadText.textContent = 'UPLOAD GLAMOUR SHOT';
+  fileUploadText.textContent = 'Mugshot';
   uploadLabel.classList.remove('has-file');
   document.documentElement.style.setProperty('--active-color', '#FF4D8D');
   showPhase(1);
+});
+
+// Handle Input logic
+const handleInput = document.getElementById('xHandle');
+handleInput.value = '@'; // Add default @
+
+handleInput.addEventListener('input', (e) => {
+  if (!handleInput.value.startsWith('@')) {
+    handleInput.value = '@' + handleInput.value.replace(/@/g, '');
+  }
+});
+
+handleInput.addEventListener('keydown', (e) => {
+  // Prevent deleting the initial @
+  if (e.key === 'Backspace' && handleInput.value.length === 1) {
+    e.preventDefault();
+  }
 });
 
 // Functions
@@ -142,14 +153,9 @@ function showPhase(phaseNum) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function updateFooterLinks() {
+function updateGlobalAccent() {
   const era = ERAS[state.selectedEraId];
   if (!era) return;
-  
-  footerLinks.apple.href = era.links.apple;
-  footerLinks.spotify.href = era.links.spotify;
-  footerLinks.soundcloud.href = era.links.soundcloud;
-  footerLinks.website.href = era.links.website;
   
   // Update global accent color
   document.documentElement.style.setProperty('--active-color', era.textColor);
@@ -171,24 +177,32 @@ async function generateID() {
   if (!era || !state.photoUrl) return;
 
   try {
-    // 1. Load images
-    const bgImg = await loadImage(era.bgImage);
+    // 1. Load images via Base64 to prevent canvas cross-origin tainting on file:///
+    const bgImg = await loadImage(BG_IMAGES[state.selectedEraId]);
     const userImg = await loadImage(state.photoUrl);
 
     // Ensure fonts are loaded before drawing (browser native FontFace API if supported)
     await document.fonts.ready;
 
-    // 2. Draw Background
+    // Set High-DPI Scaling for Crisp Text Rendering (2x scale for 2024x1276 canvas)
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset in case of regenerate
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#050505';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+    
+    ctx.save();
+    ctx.scale(2, 2);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
-    // 3. Draw User Photo (Crop to 300x400)
-    const dx = 55;
-    const dy = 110;
-    const dWidth = 300;
-    const dHeight = 400;
+    // 2. Draw Background
+    ctx.fillStyle = '#050505';
+    ctx.fillRect(0, 0, 1012, 638);
+    ctx.drawImage(bgImg, 0, 0, 1012, 638);
+
+    // 3. Draw User Photo (Crop to 301x386 according to spec)
+    const dx = 60;
+    const dy = 134; // Shifted up 30px from 164
+    const dWidth = 301;
+    const dHeight = 386;
 
     const imgRatio = userImg.width / userImg.height;
     const targetRatio = dWidth / dHeight;
@@ -208,44 +222,41 @@ async function generateID() {
 
     ctx.save();
     ctx.beginPath();
-    // Use fallback for roundRect if not supported by older browsers (Safari < 16)
-    if (ctx.roundRect) {
-      ctx.roundRect(dx, dy, dWidth, dHeight, 16);
-    } else {
-      ctx.rect(dx, dy, dWidth, dHeight);
-    }
+    // Draw sharp rectangle
+    ctx.rect(dx, dy, dWidth, dHeight);
     ctx.clip();
     ctx.drawImage(userImg, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
     ctx.restore();
 
     // 4. Draw Text
-    // Common settings
     ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
-
-    // Layer 3 (Text - First Name): Draw FirstName
+    ctx.textBaseline = 'top'; // Coordinates given assume top baseline drawing
     ctx.fillStyle = era.textColor;
-    ctx.font = '900 80px "Inter", sans-serif';
-    ctx.shadowColor = era.textColor;
-    ctx.shadowBlur = 20;
-    ctx.fillText(state.firstName.toUpperCase(), 385, 315);
-    ctx.shadowBlur = 0; // Reset shadow
 
-    // Layer 4 (Text - Last Name): Draw LastName
-    ctx.fillStyle = era.textColor;
-    ctx.font = '900 80px "Inter", sans-serif';
-    ctx.shadowColor = era.textColor;
-    ctx.shadowBlur = 20;
-    ctx.fillText(state.lastName.toUpperCase(), 385, 495);
-    ctx.shadowBlur = 0;
+    // "FIRST NAME" Label
+    ctx.font = '400 20px "Inter", sans-serif';
+    ctx.fillText('FIRST NAME', 391, 338);
 
-    // Layer 5 (Text - Handle): Draw @ + XHandle
-    ctx.fillStyle = era.textColor;
-    ctx.font = '700 24px "Inter", sans-serif';
-    ctx.shadowColor = 'rgba(0,0,0,0.8)';
-    ctx.shadowBlur = 10;
-    ctx.fillText(state.xHandle, 55, 590);
-    ctx.shadowBlur = 0;
+    // First Name Value
+    ctx.font = '900 60px "Inter", sans-serif'; // Using 900 for 'Black' weight
+    ctx.fillText(state.firstName.toUpperCase(), 391, 354);
+
+    // "LAST NAME" Label
+    ctx.font = '400 20px "Inter", sans-serif';
+    ctx.fillText('LAST NAME', 391, 442);
+
+    // Last Name Value
+    ctx.font = '900 60px "Inter", sans-serif';
+    ctx.fillText(state.lastName.toUpperCase(), 391, 461);
+
+    // ID Number
+    ctx.font = '400 20px "Inter", sans-serif';
+    const idNum = Math.floor(Math.random() * 900000000 + 100000000).toString().replace(/(\d{3})(?=\d)/g, '$1-');
+    ctx.fillText(`ID NO: ${idNum}`, 391, 560);
+
+    // User X Handle
+    ctx.font = '400 20px "Inter", sans-serif';
+    ctx.fillText(state.xHandle, 60, 560);
 
     // 5. Update Preview Image Base64
     idPreview.src = canvas.toDataURL('image/png');

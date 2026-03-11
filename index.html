@@ -7,122 +7,101 @@
   <meta name="description" content="Generate your custom hyperpop ID card based on your favorite pop star era.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Full-width top navigation bar -->
+  <header class="top-nav">
+    <img src="assets/REPUBLICOFPOP.svg" alt="Republic of Pop" class="logo-image">
+  </header>
+
   <main id="appContainer">
     <!-- Phase 1: Data Collection -->
     <section id="phase1" class="phase active">
-      <div class="header">
-        <h1>POP STAR ID</h1>
-        <p class="subtitle">ENTER TO GENERATE</p>
-      </div>
       
       <form id="dataForm">
-        <div class="form-row">
-          <div class="form-group half">
-            <label for="firstName">FIRST NAME</label>
-            <input type="text" id="firstName" placeholder="SISTER" required>
-          </div>
-          <div class="form-group half">
-            <label for="lastName">LAST NAME</label>
-            <input type="text" id="lastName" placeholder="CITY" required>
-          </div>
+        <div class="form-content">
+        <div class="form-group center-label">
+          <label for="firstName">FIRST NAME</label>
+          <input type="text" id="firstName" required>
         </div>
         
-        <div class="form-row">
-          <div class="form-group half">
-            <label for="gender">GENDER</label>
-            <select id="gender" required>
-              <option value="" disabled selected>SELECT</option>
-              <option value="Icon">ICON</option>
-              <option value="Legend">LEGEND</option>
-              <option value="Popstar">POPSTAR</option>
-              <option value="Star">STAR</option>
-            </select>
-          </div>
-          <div class="form-group half">
-            <label for="xHandle">X HANDLE</label>
-            <input type="text" id="xHandle" placeholder="@handle" required>
-          </div>
+        <div class="form-group center-label">
+          <label for="lastName">LAST NAME</label>
+          <input type="text" id="lastName" required>
         </div>
 
-        <div class="form-group">
+        <div class="form-group center-label">
+          <label for="xHandle">X USERNAME</label>
+          <input type="text" id="xHandle" required>
+        </div>
+
+        <div class="form-group center-label mugshot-group">
+          <label>MUGSHOT</label>
           <label class="file-upload-label" id="uploadLabel">
-            <span id="fileUploadText">UPLOAD GLAMOUR SHOT</span>
+            <span id="fileUploadText">MUGSHOT</span>
             <input type="file" id="photoUpload" accept="image/*" required>
           </label>
         </div>
+        </div> <!-- End of form-content blue block -->
         
-        <button type="submit" class="btn primary">CONTINUE <span class="arrow">→</span></button>
+        <button type="submit" class="btn submit-img-btn">
+          <img src="assets/GETMEANID.svg" alt="Get Me An ID">
+        </button>
       </form>
     </section>
 
     <!-- Phase 2: Era Selection -->
     <section id="phase2" class="phase hidden">
-      <div class="header">
-        <h2>SELECT ERA</h2>
-        <p class="subtitle">CHOOSE YOUR AESTHETIC</p>
-      </div>
-
       <div class="era-grid">
-        <!-- Era 1: SISTER -->
+        <!-- Era 1: Detour -->
+        <div class="era-card" data-era="detour">
+          <div class="era-content">
+            <h3>DETOUR</h3>
+            <p>KIM PETRAS</p>
+          </div>
+        </div>
+        <!-- Era 2: Wor$t Girl -->
+        <div class="era-card" data-era="worstgirl">
+          <div class="era-content">
+            <h3>WOR$T GIRL IN AMERICA</h3>
+            <p>SLAYYYTER</p>
+          </div>
+        </div>
+        <!-- Era 3: SISTER -->
         <div class="era-card" data-era="sister">
           <div class="era-content">
             <h3>SISTER</h3>
-            <p>Frost Children</p>
+            <p>FROST CHILDREN</p>
           </div>
         </div>
-        <!-- Era 2: Detour -->
-        <div class="era-card" data-era="detour">
-          <div class="era-content">
-            <h3>Detour</h3>
-            <p>Kim Petras</p>
-          </div>
-        </div>
-        <!-- Era 3: Wor$t Girl -->
-        <div class="era-card" data-era="worstgirl">
-          <div class="era-content">
-            <h3>Wor$t Girl in America</h3>
-            <p>Slayyyter</p>
-          </div>
-        </div>
+      </div>
+      
+      <div class="header" style="margin-top: 2rem;">
+        <h2>SELECT ERA</h2>
       </div>
     </section>
 
     <!-- Phase 3: ID Generation -->
     <section id="phase3" class="phase hidden">
-      <div class="header">
-        <h2>YOUR ID</h2>
-        <p class="subtitle">DOWNLOAD & SHARE</p>
-      </div>
 
       <div class="canvas-container">
-        <!-- Hidden canvas for generation -->
-        <canvas id="idCanvas" width="1012" height="638" style="display:none;"></canvas>
+        <!-- Hidden canvas for generation (2x scaled for high-DPI crisp text rendering) -->
+        <canvas id="idCanvas" width="2024" height="1276" style="display:none;"></canvas>
         <div class="preview-wrapper">
           <img id="idPreview" src="" alt="Generated ID Preview" />
         </div>
       </div>
 
       <div class="action-buttons">
-        <button id="downloadBtn" class="btn primary glow">DOWNLOAD ID</button>
+        <button id="downloadBtn" class="btn primary glow">DOWNLOAD</button>
         <button id="startOverBtn" class="btn secondary">START OVER</button>
       </div>
     </section>
   </main>
 
-  <!-- Marketing Footer -->
-  <footer id="marketingFooter">
-    <div class="social-links">
-      <a href="#" id="linkApple" class="social-icon" target="_blank">APPLE MUSIC</a>
-      <a href="#" id="linkSpotify" class="social-icon" target="_blank">SPOTIFY</a>
-      <a href="#" id="linkSoundcloud" class="social-icon" target="_blank">SOUNDCLOUD</a>
-      <a href="#" id="linkWebsite" class="social-icon" target="_blank">ARTIST WEBSITE</a>
-    </div>
-  </footer>
-
+  <script src="assets.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
